@@ -97,3 +97,4 @@ bun run build    # verify production build passes
 
 Requires Bun ≥ 1.0. Node.js also works with `npm install`.
 # docs
+# docs
