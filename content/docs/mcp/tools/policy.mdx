@@ -1,0 +1,117 @@
+---
+title: "Spending rules and limits"
+description: "Set guardrails on what your agent can spend, and from which merchants."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+Spending policies are checked automatically when your agent creates a checkout. If a purchase would violate the policy, the checkout is rejected before the merchant is contacted — no charge occurs, no checkout ID is created.
+
+Policies apply per wallet + agent pair. The same wallet can have different rules for different agents.
+
+**Required scope:** `wallet:read` to view. `wallet:write` to update.
+
+---
+
+## Set spending limits
+
+**When to use:** You want to cap what an agent can spend in a day, or per transaction.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_update_spending_policy",
+  "params": {
+    "walletId": "wal_01HXYZ123",
+    "agentId": "agt_01HXYZ789",
+    "dailyLimit": 500,
+    "transactionLimit": 200,
+    "monthlyLimit": 2000
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "success": true,
+  "policy": {
+    "id": "pol_001",
+    "walletId": "wal_01HXYZ123",
+    "agentId": "agt_01HXYZ789",
+    "dailyLimit": 500,
+    "transactionLimit": 200,
+    "monthlyLimit": 2000
+  }
+}
+```
+</Tab>
+</Tabs>
+
+Limits are in dollars. Set `monthlyLimit: null` to remove the monthly cap.
+
+---
+
+## Block or restrict merchants
+
+Block specific merchants (agent can shop anywhere else), or allowlist merchants (agent can only shop at listed stores).
+
+**Block specific merchants:**
+```json
+{
+  "tool": "aa_update_spending_policy",
+  "params": {
+    "walletId": "wal_01HXYZ123",
+    "agentId": "agt_01HXYZ789",
+    "merchantBlocklist": ["gambling.example.com", "crypto.example.com"]
+  }
+}
+```
+
+**Restrict to specific merchants only:**
+```json
+{
+  "tool": "aa_update_spending_policy",
+  "params": {
+    "walletId": "wal_01HXYZ123",
+    "agentId": "agt_01HXYZ789",
+    "merchantAllowlist": ["approved-supplier.com", "office-store.com"]
+  }
+}
+```
+
+An empty `merchantAllowlist` (`[]`) means all merchants are allowed.
+
+---
+
+## Check current policy
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_spending_policy",
+  "params": {
+    "walletId": "wal_01HXYZ123",
+    "agentId": "agt_01HXYZ789"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "dailyLimit": 500,
+  "transactionLimit": 200,
+  "monthlyLimit": 2000,
+  "merchantAllowlist": [],
+  "merchantBlocklist": ["gambling.example.com"],
+  "autoApproveUnder": 50,
+  "requireApprovalOver": 150
+}
+```
+</Tab>
+</Tabs>
+
+To pre-validate a purchase against policy before checkout, use `aa_check_purchase_allowed`. Pass `amount` in dollars (not cents).

@@ -1,0 +1,44 @@
+---
+title: "Connect Your Store"
+description: "Paste your API key once and your store is live for AI agents in about 30 seconds."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## Get your API key
+
+Log in to your [AgentsAuthority dashboard](https://agentsauthority.ai) and go to **Settings → API Keys**. Copy your key.
+
+## Connect
+
+<Steps>
+  <Step>
+    ### Open the plugin settings
+    In WordPress admin, go to **Agents Authority → Settings**.
+  </Step>
+  <Step>
+    ### Paste your API key
+    Paste your key into the **API Key** field and click **Connect**.
+  </Step>
+  <Step>
+    ### Wait for sync
+    A progress indicator appears while your products sync. This takes about 30 seconds for most stores.
+  </Step>
+  <Step>
+    ### Done
+    The settings page shows a green **Connected** badge with your store name and the number of products synced. Your store is live.
+  </Step>
+</Steps>
+
+<Callout>
+The plugin configures everything automatically. You don't need to touch WooCommerce settings or set up API keys manually.
+</Callout>
+
+## Disconnect
+
+To disconnect, click **Disconnect** in the plugin settings. Your store is removed from AI agent discovery immediately. Your WooCommerce store continues to work normally for regular customers.
+
+<Callout>
+Disconnecting does not delete your store data on AgentsAuthority. To permanently remove your store, delete it from your AgentsAuthority dashboard after disconnecting.
+</Callout>

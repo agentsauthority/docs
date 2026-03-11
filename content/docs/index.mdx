@@ -1,0 +1,62 @@
+---
+title: "Introduction"
+description: "Connect AI agents to your commerce stack with Agents Authority"
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="warn">
+**Alpha.** Agents Authority is in early access. APIs, tool names, and features may change before general availability. Breaking changes will be announced in the changelog.
+</Callout>
+
+## What is Agents Authority?
+
+Agents Authority is the commerce infrastructure for AI agents. It lets AI agents — Claude, GPT, Gemini, or any MCP-compatible client — discover products, execute purchases, manage wallets, and interact with merchants, all through a single protocol layer.
+
+<Cards>
+  <Card
+    title="MCP Server"
+    href="/docs/mcp/quickstart"
+  >
+    Connect any AI agent to the Agents Authority platform in 5 minutes. 41 tools across 9 commerce domains.
+  </Card>
+  <Card
+    title="WooCommerce Plugin"
+    href="/docs/plugins/woocommerce/overview"
+  >
+    Make your WooCommerce store agent-ready. One-click connect, automatic product sync, and AI-native checkout.
+  </Card>
+</Cards>
+
+## How it Works
+
+```
+AI Agent (Claude, GPT, etc.)
+        ↓  MCP Protocol
+Agents Authority MCP Server
+        ↓  Commerce API
+  ┌─────┴──────┐
+  │   Platform  │  ← wallets, payments, mandates, policy
+  └─────┬──────┘
+        ↓  UCP Proxy
+WooCommerce / Shopify Stores
+```
+
+AI agents connect to the MCP server, which exposes commerce capabilities as structured tools. When an agent wants to purchase a product, the platform handles authentication, payment authorization, policy enforcement, and merchant fulfillment — without the agent needing to understand any of it.
+
+## Choose Your Path
+
+<Tabs items={["I'm a Merchant", "I'm a Developer"]}>
+  <Tab value="I'm a Merchant">
+    Install the WooCommerce plugin to make your store discoverable and purchasable by AI agents.
+
+    → [Install the WooCommerce Plugin](/docs/plugins/woocommerce/installation)
+  </Tab>
+  <Tab value="I'm a Developer">
+    Connect your AI agent to the MCP server to enable shopping, payments, and commerce workflows.
+
+    → [MCP Server Quickstart](/docs/mcp/quickstart)
+  </Tab>
+</Tabs>

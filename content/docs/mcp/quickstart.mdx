@@ -1,0 +1,163 @@
+---
+title: "Your agent's first purchase in 5 minutes"
+description: "Connect Claude Desktop (or any MCP client) and have your agent complete a real purchase."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## Step 1: Get your API key
+
+Go to [app.agentsauthority.com](https://app.agentsauthority.com) → **Settings → API Keys** → **Create Key**.
+
+Copy the key immediately — you will not see it again.
+
+## Step 2: Connect your MCP client
+
+### Claude Desktop
+
+Add this to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "agents-authority": {
+      "url": "https://mcp.agentsauthority.com/mcp",
+      "headers": {
+        "Authorization": "Bearer aa_live_xxxxxxxxxxxx"
+      }
+    }
+  }
+}
+```
+
+Replace `aa_live_xxxxxxxxxxxx` with your actual key, then restart Claude Desktop.
+
+### Any other MCP client
+
+Pass the key as a header on every request:
+
+```http
+Authorization: Bearer aa_live_xxxxxxxxxxxx
+```
+
+## Step 3: Verify the connection
+
+Ask your agent to call `aa_get_user`. Expected outcome: your account details come back.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_user",
+  "params": {}
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "usr_01HXYZ123",
+  "email": "alice@example.com",
+  "name": "Alice Smith",
+  "createdAt": "2025-01-15T10:00:00Z"
+}
+```
+</Tab>
+</Tabs>
+
+If you get `401 Missing API key`, check that the `Authorization` header is set correctly.
+
+## Step 4: Find a product
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_discover_products",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "query": "standing desk",
+    "maxPrice": 40000,
+    "inStockOnly": true,
+    "sortBy": "price_asc"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "products": [
+    {
+      "id": "prod_01HXYZ456",
+      "name": "ErgoStand 400",
+      "price": { "amount": 32900, "currency": "USD" },
+      "availability": { "status": "in_stock", "quantity": 8 }
+    }
+  ],
+  "total": 3,
+  "has_more": false
+}
+```
+</Tab>
+</Tabs>
+
+Prices are in cents. `32900` = $329.00.
+
+## Step 5: Complete a purchase
+
+Use `aa_ucp_purchase` to buy in one call. Expected outcome: your agent confirms the order was placed.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_ucp_purchase",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "items": [
+      {
+        "name": "ErgoStand 400",
+        "quantity": 1,
+        "unitPrice": 32900,
+        "sku": "ES400-BLK"
+      }
+    ],
+    "shippingAddress": {
+      "name": "Alice Smith",
+      "line1": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "country": "US",
+      "postal_code": "10001"
+    }
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "success": true,
+  "orderId": "ord_01HXYZ999",
+  "orderNumber": "10042",
+  "status": "completed",
+  "totalAmount": {
+    "amount": "357.61",
+    "currency": "USD"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+<Callout>
+`aa_ucp_purchase` requires a wallet and an active mandate to be set up first. If you get a mandate error, see [Mandate tools](/docs/mcp/tools/mandate) to create one. If you get a wallet error, fund your wallet in the dashboard.
+</Callout>
+
+## Next steps
+
+- [Set spending limits](/docs/mcp/tools/policy) — cap what your agent can spend per day or per transaction
+- [Create a mandate](/docs/mcp/tools/mandate) — authorize your agent to buy autonomously
+- [Full purchase flow](/docs/mcp/tools/commerce) — step-by-step control with shipping options and discount codes

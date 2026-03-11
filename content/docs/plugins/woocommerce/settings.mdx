@@ -1,0 +1,48 @@
+---
+title: "Settings Guide"
+description: "Every setting in the Agents Authority plugin and what it controls."
+---
+
+Access all settings at **WordPress Admin → Agents Authority → Settings**.
+
+## Connect or disconnect
+
+**API Key** — paste your key from the AgentsAuthority dashboard here. After connecting, the field shows your masked key.
+
+**Connect** — links your store to AgentsAuthority. Products sync automatically.
+
+**Disconnect** — unlinks your store and removes it from AI agent discovery. Your WooCommerce store continues working normally.
+
+**Connection status** shows whether your store is live:
+- Green badge: connected, with your store name and last sync time
+- Yellow badge: not connected, with the API key form
+
+## Control what agents can find
+
+These settings are under **Agent Visibility**. They only affect AI agent discovery — your regular store and customers are unaffected.
+
+**In-stock only** — when on, agents only see products you currently have in stock. Out-of-stock products are hidden.
+
+**Minimum quantity** — hide products from agents when stock falls below a number you set. Useful to hold back a few units for direct customers. Set to 0 to disable.
+
+**Hidden categories** — select any product categories to hide entirely from agent discovery.
+
+**Per-product visibility** — on any product's edit page, under the **General** tab, check **Hide from AI Agents** to exclude that specific product.
+
+## Monitor activity
+
+**Sync status** — shows the last sync time and how many products are currently synced.
+
+**Sync Products Now** — triggers an immediate full sync of all your published products.
+
+**Auto-sync interval** — controls how often the plugin automatically runs a full sync in the background (default: every hour). Options: 15 minutes, hourly, every 6 hours, daily, or manual only.
+
+**Store stats** — live counts of your published products, categories, and on-sale items.
+
+## MCP endpoint
+
+After connecting, the **MCP Server** card shows your store's MCP endpoint URL. You can share this URL with developers or add it to MCP-compatible tools like Claude Desktop or Cursor. A copy button is next to the URL.
+
+## Debug logs
+
+Enable detailed logging only when troubleshooting. See [Troubleshooting](/docs/plugins/woocommerce/troubleshooting) for instructions.

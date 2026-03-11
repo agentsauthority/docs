@@ -1,0 +1,5 @@
+{
+  "title": "Agents Authority",
+  "root": true,
+  "pages": ["index", "---Quick Start---", "...mcp", "---Plugins---", "...plugins"]
+}

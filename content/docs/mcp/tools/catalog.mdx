@@ -1,0 +1,203 @@
+---
+title: "Browsing and searching products"
+description: "Search products, get details, check stock, and compare options across any connected store."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+**Required scope:** `catalog:read`
+
+---
+
+## Find products
+
+**When to use:** Your user says "Show me blue sneakers under $100" or "Find a standing desk in stock."
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_discover_products",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "query": "standing desk",
+    "maxPrice": 40000,
+    "inStockOnly": true,
+    "sortBy": "price_asc",
+    "limit": 5
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "products": [
+    {
+      "id": "prod_01HXYZ456",
+      "name": "ErgoStand 400",
+      "price": { "amount": 32900, "currency": "USD", "on_sale": false },
+      "availability": { "status": "in_stock", "quantity": 8 },
+      "featured_image": "https://...",
+      "categories": ["furniture", "standing-desks"]
+    }
+  ],
+  "total": 3,
+  "has_more": false
+}
+```
+</Tab>
+</Tabs>
+
+Use `merchantDomain` or `merchantId` (from `aa_discover_merchant`) — providing `merchantId` is faster. All prices are in cents. To page through results, increment `offset` by `limit` until `has_more` is `false`.
+
+For a cross-merchant catalog search, use `aa_search_products` instead and pass `merchantId` as an optional filter.
+
+---
+
+## Get full product details
+
+**When to use:** Before buying, your agent needs the complete product description, all variants, and exact pricing.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_product_detail",
+  "params": {
+    "productId": "prod_01HXYZ456"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "prod_01HXYZ456",
+  "name": "ErgoStand 400",
+  "sku": "ES400-BLK",
+  "price": { "amount": 32900, "currency": "USD" },
+  "availability": { "status": "in_stock", "quantity": 8 },
+  "attributes": [
+    { "name": "Color", "options": ["Black", "White"], "is_variation": true }
+  ],
+  "variants": [
+    {
+      "id": "var_001",
+      "sku": "ES400-BLK",
+      "price": { "amount": 32900, "currency": "USD" },
+      "availability": { "status": "in_stock", "quantity": 5 },
+      "attributes": [{ "name": "Color", "value": "Black" }]
+    }
+  ],
+  "_ucp_line_item": {
+    "name": "ErgoStand 400",
+    "quantity": 1,
+    "unitPrice": 32900,
+    "sku": "ES400-BLK"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+Copy `_ucp_line_item` directly into `aa_create_checkout` or `aa_ucp_purchase` — it is pre-formatted with the correct price in cents.
+
+---
+
+## Check stock
+
+**When to use:** Confirm a specific quantity is available before committing to a checkout.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_check_inventory",
+  "params": {
+    "productId": "prod_01HXYZ456",
+    "quantity": 2
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "available": true,
+  "can_fulfill": true,
+  "requested_quantity": 2,
+  "stock": { "status": "in_stock", "quantity": 8 },
+  "message": "In stock"
+}
+```
+</Tab>
+</Tabs>
+
+When `can_fulfill` is `false` but `available` is `true`, the product exists but you requested more units than are in stock.
+
+---
+
+## Browse categories
+
+**When to use:** Let users explore what a merchant sells before searching.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_categories",
+  "params": {
+    "merchantId": "mer_01HXYZ123"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "categories": [
+    { "id": "cat_001", "name": "Furniture", "slug": "furniture", "parent_id": null },
+    { "id": "cat_002", "name": "Standing Desks", "slug": "standing-desks", "parent_id": "cat_001" }
+  ]
+}
+```
+</Tab>
+</Tabs>
+
+Pass a category `slug` to `aa_discover_products` or `aa_search_products` to filter results.
+
+---
+
+## Compare products
+
+**When to use:** Help a user decide between 2–5 options side by side.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_compare_products",
+  "params": {
+    "productIds": ["prod_01HXYZ456", "prod_01HABC789", "prod_01HDEF012"]
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "products": [
+    { "id": "prod_01HXYZ456", "name": "ErgoStand 400", "price": { "amount": 32900 } },
+    { "id": "prod_01HABC789", "name": "FlexDesk Pro", "price": { "amount": 38500 } },
+    { "id": "prod_01HDEF012", "name": "StandEasy 200", "price": { "amount": 24900 } }
+  ],
+  "comparison": {
+    "shared_attributes": ["Color", "Height Range"],
+    "price_range": { "min": 24900, "max": 38500, "currency": "USD" },
+    "all_in_stock": true
+  }
+}
+```
+</Tab>
+</Tabs>

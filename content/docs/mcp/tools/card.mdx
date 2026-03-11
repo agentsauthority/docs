@@ -1,0 +1,80 @@
+---
+title: "Payment methods"
+description: "View saved payment cards on a wallet."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+Cards are stored securely and used automatically during checkout — your agent does not pass card details to any purchase tool. Card selection happens behind the scenes when the payment handler runs.
+
+**Required scope:** `wallet:read`
+
+---
+
+## List cards
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_list_cards",
+  "params": {
+    "walletId": "wal_01HXYZ123"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+[
+  {
+    "id": "card_001",
+    "brand": "visa",
+    "last4": "4242",
+    "expMonth": 12,
+    "expYear": 2027,
+    "isDefault": true
+  },
+  {
+    "id": "card_002",
+    "brand": "mastercard",
+    "last4": "5555",
+    "expMonth": 8,
+    "expYear": 2026,
+    "isDefault": false
+  }
+]
+```
+</Tab>
+</Tabs>
+
+---
+
+## Get the default card
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_default_card",
+  "params": {
+    "walletId": "wal_01HXYZ123"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "card_001",
+  "brand": "visa",
+  "last4": "4242",
+  "expMonth": 12,
+  "expYear": 2027,
+  "isDefault": true
+}
+```
+</Tab>
+</Tabs>
+
+If no default card exists: `{ "error": "No default card found" }`. Add a card in the dashboard under **Wallet → Payment Methods**.

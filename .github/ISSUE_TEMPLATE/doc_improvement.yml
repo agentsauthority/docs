@@ -1,0 +1,43 @@
+name: Doc improvement
+description: Suggest new content, better examples, or clarifications.
+title: "[Improvement]: "
+labels: ["enhancement", "docs"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make the docs better? We'd love to hear it.
+
+  - type: input
+    id: page
+    attributes:
+      label: Related page (if any)
+      placeholder: "https://docs.agentsauthority.com/... or 'New page'"
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type of improvement
+      options:
+        - Add new page or section
+        - Improve existing explanation
+        - Add code example
+        - Add tutorial or guide
+        - Better structure or navigation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What would you like to see?
+      description: Be as specific as you can — the more detail, the easier it is to act on.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Why does this matter? (optional)
+      description: What were you trying to do when you noticed this gap?

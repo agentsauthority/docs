@@ -1,0 +1,140 @@
+---
+title: "Autonomous purchase permissions"
+description: "Let your agent make purchases without asking the user each time."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+A mandate is a pre-authorized permission for your agent to spend money. Without one, `aa_complete_checkout` will fail — a valid mandate must cover the merchant, amount, and agent for every purchase.
+
+**Use cases:**
+- Your agent manages a recurring supply order — a mandate lets it buy automatically each month
+- You want your agent to reorder office supplies up to $200 whenever stock runs low
+- You're building a shopping assistant that can act on "buy the cheapest option" without asking again
+
+**Mandate lifecycle:** create → sign → used automatically on purchase
+
+**Required scope:** `mandate:read` for read operations. `mandate:write` to create, sign, or revoke.
+
+---
+
+## Create a mandate
+
+The most common type is `intent` — it sets a budget cap and optionally limits which merchants the agent can buy from.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_create_mandate",
+  "params": {
+    "type": "intent",
+    "walletId": "wal_01HXYZ123",
+    "description": "Buy office supplies up to $200 from approved stores",
+    "maxBudget": 20000,
+    "merchants": ["mer_01HXYZ111", "mer_01HXYZ222"],
+    "expiresInSeconds": 604800
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "man_01HXYZ456",
+  "type": "intent",
+  "status": "created",
+  "walletId": "wal_01HXYZ123",
+  "intent": {
+    "naturalLanguageDescription": "Buy office supplies up to $200 from approved stores",
+    "maxBudget": 20000,
+    "merchants": ["mer_01HXYZ111", "mer_01HXYZ222"],
+    "intentExpiry": "2026-03-10T10:00:00Z"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+Omit `merchants` to allow purchases from any connected merchant. `maxBudget` is in cents.
+
+For a purchase tied to a specific cart, use `type: "cart"` and include `merchantId`, `items`, and `total`.
+
+---
+
+## Sign the mandate
+
+A mandate must be signed before it can authorize purchases. Status changes from `created` to `signed`.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_sign_mandate",
+  "params": {
+    "mandateId": "man_01HXYZ456",
+    "signature": "eyJhbGciOiJFUzI1NiJ9...",
+    "signatureMethod": "api_key"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "man_01HXYZ456",
+  "status": "signed",
+  "signedAt": "2026-03-03T10:05:00Z"
+}
+```
+</Tab>
+</Tabs>
+
+---
+
+## Check if a mandate covers a purchase
+
+**Use this before checkout** to surface mandate issues to the user early, rather than letting `aa_complete_checkout` fail.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_check_mandate_coverage",
+  "params": {
+    "agentId": "agt_01HXYZ789",
+    "walletId": "wal_01HXYZ123",
+    "merchantDomain": "acmeshop.example.com",
+    "amount": 14041
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "matched": true,
+  "mandate": {
+    "id": "man_01HXYZ456",
+    "type": "intent",
+    "status": "signed"
+  },
+  "message": "Mandate covers this purchase"
+}
+```
+</Tab>
+</Tabs>
+
+---
+
+## List and revoke mandates
+
+```json
+{ "tool": "aa_list_mandates", "params": { "walletId": "wal_01HXYZ123", "status": "signed" } }
+```
+
+```json
+{ "tool": "aa_revoke_mandate", "params": { "mandateId": "man_01HXYZ456", "reason": "User cancelled" } }
+```
+
+Revoking a mandate releases any held funds immediately.

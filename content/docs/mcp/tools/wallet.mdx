@@ -1,0 +1,76 @@
+---
+title: "Spending account"
+description: "Check wallet balance before your agent makes a purchase."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+Your agent draws from a wallet to pay for purchases. Think of it as a prepaid account — you fund it in the dashboard, and every purchase deducts from the available balance.
+
+A wallet must exist before any checkout can be completed. `aa_ucp_purchase` and `aa_create_checkout` auto-resolve the wallet from your account's primary wallet — you only need to pass `walletId` explicitly when overriding the default.
+
+**Required scope:** `wallet:read`
+
+---
+
+## Check balance
+
+**When to use:** Confirm there are enough funds before placing a large order.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_balance",
+  "params": {
+    "walletId": "wal_01HXYZ123"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "walletId": "wal_01HXYZ123",
+  "balance": "500.00",
+  "currency": "USD",
+  "availableBalance": 42341
+}
+```
+</Tab>
+</Tabs>
+
+| Field | What it means |
+|---|---|
+| `balance` | Total wallet balance in dollars |
+| `availableBalance` | Balance in cents after subtracting pending holds — use this to check if a purchase will go through |
+
+Use `availableBalance` when deciding whether to proceed. `balance` does not reflect funds already committed to in-flight transactions.
+
+---
+
+## List wallets
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_list_wallets",
+  "params": {}
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+[
+  {
+    "id": "wal_01HXYZ123",
+    "name": "Primary Wallet",
+    "currency": "USD",
+    "balance": "500.00",
+    "status": "active"
+  }
+]
+```
+</Tab>
+</Tabs>

@@ -1,0 +1,47 @@
+name: Bug report
+description: Something in the docs is wrong, broken, or missing.
+title: "[Bug]: "
+labels: ["bug", "docs"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve the docs. Please fill in as much as you can.
+
+  - type: input
+    id: page
+    attributes:
+      label: Page URL
+      description: Link to the docs page with the issue.
+      placeholder: "https://docs.agentsauthority.com/..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type of issue
+      options:
+        - Broken link
+        - Incorrect information
+        - Missing content
+        - Outdated content
+        - Code sample error
+        - Unclear explanation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What's wrong?
+      description: Describe the issue clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it say? (optional)
+      description: If you know the correct information, share it here. Paste links, correct code, etc.

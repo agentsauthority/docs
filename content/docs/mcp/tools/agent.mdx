@@ -1,0 +1,114 @@
+---
+title: "AI agent management"
+description: "Register agent identities, track what each one has spent, and manage their lifecycle."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+An "agent" in Agents Authority is a registered identity with its own wallet and spending history. Each AI assistant you build gets its own agent ID — this lets you track spending per agent, set different policies for each one, and audit what they've purchased.
+
+**When to use:** You're building a product where multiple AI agents act on behalf of users, and you need to manage them programmatically.
+
+**Required scope:** `agent:read` to view. `agent:write` to create or update.
+
+---
+
+## Create an agent
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_create_agent",
+  "params": {
+    "displayName": "Shopping Assistant",
+    "description": "Handles product purchases for the customer service team"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "agt_01HXYZ789",
+  "displayName": "Shopping Assistant",
+  "description": "Handles product purchases for the customer service team",
+  "isActive": true,
+  "createdAt": "2026-03-01T10:00:00Z"
+}
+```
+</Tab>
+</Tabs>
+
+Use the returned `id` when tagging requests with `X-Agent-Id`, creating mandates, or setting spending policies.
+
+---
+
+## Check what an agent has spent
+
+**When to use:** Show a user how much their agent has spent today or this month, or check remaining budget.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_check_spending",
+  "params": {
+    "agentId": "agt_01HXYZ789"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "agentId": "agt_01HXYZ789",
+  "dailySpent": 8750,
+  "monthlySpent": 42300,
+  "purchaseCount": 7,
+  "currency": "USD"
+}
+```
+</Tab>
+</Tabs>
+
+Amounts are in cents. `8750` = $87.50 spent today.
+
+---
+
+## List your agents
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_list_agents",
+  "params": { "includeInactive": false }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+[
+  { "id": "agt_01HXYZ789", "displayName": "Shopping Assistant", "isActive": true },
+  { "id": "agt_01HABC456", "displayName": "Research Agent", "isActive": true }
+]
+```
+</Tab>
+</Tabs>
+
+---
+
+## Deactivate an agent
+
+Deactivating stops an agent from making purchases while preserving its full spending history for audit purposes. Use this instead of deleting.
+
+```json
+{
+  "tool": "aa_update_agent",
+  "params": {
+    "agentId": "agt_01HXYZ789",
+    "isActive": false
+  }
+}
+```

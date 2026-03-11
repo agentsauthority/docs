@@ -1,0 +1,45 @@
+---
+title: "How AI Agents Find Your Store"
+description: "When you connect, your store gets a profile that AI agents use to understand what you sell and how to buy."
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+When you connect your store, AgentsAuthority creates a storefront profile that AI agents can read. Think of it like a Google Business Profile, but built specifically for AI agents.
+
+## What the profile includes
+
+- Your store name and the categories you sell in
+- Your accepted payment methods
+- Whether you offer shipping
+- Whether you accept coupons or discount codes
+- Your privacy policy, refund policy, and terms of service links
+
+The plugin builds this profile automatically from your WooCommerce configuration. You don't fill it out — it's generated from your existing settings.
+
+## When it updates
+
+The profile updates automatically when you make changes to your WooCommerce setup:
+
+- Add a new payment gateway → agents see it within the hour
+- Create a shipping zone → agents know you offer fulfillment
+- Enable or disable coupons → reflected in the next update
+
+You don't need to do anything to keep it current.
+
+## If an agent can't find your store
+
+<Steps>
+  <Step>
+    ### Wait 5 minutes
+    After first connecting, allow up to 5 minutes for your store to become discoverable.
+  </Step>
+  <Step>
+    ### Check your connection
+    Go to **Agents Authority → Settings** and confirm the status shows a green **Connected** badge.
+  </Step>
+  <Step>
+    ### Reconnect if needed
+    If the badge shows yellow, click **Connect** and enter your API key again.
+  </Step>
+</Steps>

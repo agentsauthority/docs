@@ -1,0 +1,67 @@
+---
+title: "Fixing Common Problems"
+description: "Solutions to the most common issues with the Agents Authority WooCommerce plugin."
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## Can't connect
+
+**Double-check your API key.** Copy it fresh from your AgentsAuthority dashboard — go to **Settings → API Keys**. Paste it without extra spaces.
+
+**Make sure WooCommerce is active.** Go to **Plugins** and confirm WooCommerce is installed and active. The Agents Authority plugin requires WooCommerce to run.
+
+**Disconnect and try again.** Go to **Agents Authority → Settings**, click **Disconnect** if the button is available, wait 30 seconds, then click **Connect** with your key.
+
+---
+
+## Products not showing up for agents
+
+**Check the product is published.** Draft and private products never sync to agents. In WooCommerce, open the product and confirm **Status** is set to **Published**.
+
+**Check it's not hidden.** Open the product, go to the **General** tab in Product data, and confirm **Hide from AI Agents** is not checked.
+
+**Run a manual sync.** Go to **Agents Authority → Settings** and click **Sync Products Now**. Wait 60 seconds, then check again.
+
+**Check your visibility settings.** Go to **Agent Visibility** in the plugin settings. If "In-stock only" is on and your product is out of stock, agents won't see it. If the product is in a hidden category, it won't appear.
+
+---
+
+## Store not found by agents
+
+Wait up to 5 minutes after your first connection. Agent discovery takes a moment to propagate.
+
+After 5 minutes, check that the settings page shows a green **Connected** badge. If it shows yellow, reconnect.
+
+---
+
+## Orders not coming through
+
+AI agent purchases go through your standard WooCommerce checkout — they appear in **WooCommerce → Orders** alongside all other orders. If you're not seeing recent orders, check that your store is connected and that agents can find your products (see above).
+
+---
+
+## Something else
+
+Enable debug logs to see what's happening:
+
+<Steps>
+  <Step>
+    ### Enable debug logging
+    Go to **Agents Authority → Settings** and turn on **Enable Debug Logs**.
+  </Step>
+  <Step>
+    ### Reproduce the issue
+    Try the action that's failing — connecting, syncing, or whatever is broken.
+  </Step>
+  <Step>
+    ### Check the logs
+    Go to **Tools → Site Health → Info** and look for the Agents Authority log entries, or check `wp-content/debug.log` for lines starting with `[AgentsAuthority]`.
+  </Step>
+  <Step>
+    ### Turn off debug logging
+    Disable debug logs when you're done — don't leave them on in production.
+  </Step>
+</Steps>
+
+If you're still stuck, contact support at [hello@agentsauthority.com](mailto:hello@agentsauthority.com) with the error message you see and your WordPress and WooCommerce versions.

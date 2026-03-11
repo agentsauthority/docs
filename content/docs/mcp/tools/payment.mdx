@@ -1,0 +1,91 @@
+---
+title: "Transaction history"
+description: "Let your agent look up past purchases and pull receipts."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+**When to use:** Your user asks "what did I buy last week?" or "can you show me my receipt for that desk?"
+
+**Required scope:** `payment:read`
+
+---
+
+## List recent purchases
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_list_transactions",
+  "params": {
+    "limit": 10,
+    "offset": 0
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+[
+  {
+    "id": "ord_01HXYZ999",
+    "status": "completed",
+    "totalAmount": "357.61",
+    "currency": "USD",
+    "createdAt": "2026-03-01T10:30:00Z",
+    "merchantDomain": "acmeshop.example.com"
+  },
+  {
+    "id": "ord_01HABC111",
+    "status": "completed",
+    "totalAmount": "89.99",
+    "currency": "USD",
+    "createdAt": "2026-02-22T14:15:00Z",
+    "merchantDomain": "techstore.example.com"
+  }
+]
+```
+</Tab>
+</Tabs>
+
+---
+
+## Get a receipt
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_transaction",
+  "params": {
+    "transactionId": "ord_01HXYZ999"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "order": {
+    "id": "ord_01HXYZ999",
+    "status": "completed",
+    "totalAmount": "357.61",
+    "currency": "USD",
+    "createdAt": "2026-03-01T10:30:00Z"
+  },
+  "items": [
+    {
+      "name": "ErgoStand 400",
+      "quantity": 1,
+      "unitPrice": "329.00",
+      "totalPrice": "329.00",
+      "sku": "ES400-BLK"
+    }
+  ]
+}
+```
+</Tab>
+</Tabs>
+
+You can only retrieve transactions that belong to the authenticated user.

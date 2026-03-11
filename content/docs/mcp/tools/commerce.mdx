@@ -1,0 +1,216 @@
+---
+title: "Making a purchase"
+description: "Buy in one call or step through the checkout flow for full control."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+**Required scope:** `catalog:read` for product discovery. `payment:write` for checkout and purchase.
+
+---
+
+## The easy way: one-call purchase
+
+**When to use:** Your user says "buy this" and you already have the product details. No shipping option selection or discount codes needed.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_ucp_purchase",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "items": [
+      {
+        "name": "ErgoStand 400",
+        "quantity": 1,
+        "unitPrice": 32900,
+        "sku": "ES400-BLK"
+      }
+    ],
+    "shippingAddress": {
+      "name": "Alice Smith",
+      "line1": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "country": "US",
+      "postal_code": "10001"
+    }
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "success": true,
+  "orderId": "ord_01HXYZ999",
+  "orderNumber": "10042",
+  "status": "completed",
+  "totalAmount": {
+    "amount": "357.61",
+    "currency": "USD"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+Spending policy and mandate checks happen automatically. You do not need to call policy or mandate tools for a normal purchase — they run inside this call.
+
+| Use `aa_ucp_purchase` when | Use the step-by-step flow when |
+|---|---|
+| Buying a known item, no choices | You need to pick a shipping option |
+| Testing or prototyping | You want to apply a discount code |
+| Digital goods (no shipping) | You want to inspect totals before paying |
+
+---
+
+## The step-by-step way
+
+Use this when you need more control — selecting shipping, applying discount codes, or confirming totals before the card is charged.
+
+### Step 1: Find the merchant
+
+**When to use:** You know a merchant's domain but need their ID for subsequent calls.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_discover_merchant",
+  "params": {
+    "merchantDomain": "acmeshop.example.com"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "domain": "acmeshop.example.com",
+  "merchantId": "mer_01HXYZ123",
+  "businessName": "Acme Shop",
+  "supportsCart": true,
+  "supportsFulfillment": true,
+  "supportsDiscounts": true
+}
+```
+</Tab>
+</Tabs>
+
+Save the `merchantId`. You need it for `aa_discover_products` and it avoids a repeated lookup.
+
+### Step 2: Create a checkout
+
+Spending policy is checked here. If the purchase exceeds limits or the merchant is blocked, the checkout is rejected before any payment is attempted.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_create_checkout",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "items": [
+      {
+        "name": "ErgoStand 400",
+        "quantity": 1,
+        "unitPrice": 32900,
+        "sku": "ES400-BLK"
+      }
+    ],
+    "buyerEmail": "alice@example.com"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "checkoutId": "co_01HXYZ789",
+  "status": "incomplete",
+  "totals": [
+    { "type": "subtotal", "amount": { "amount": "329.00", "currency": "USD" } },
+    { "type": "total", "amount": { "amount": "357.61", "currency": "USD" } }
+  ]
+}
+```
+</Tab>
+</Tabs>
+
+### Step 3: Add shipping address
+
+<Tabs items={['Request']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_update_checkout",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "checkoutId": "co_01HXYZ789",
+    "shippingAddress": {
+      "line1": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "country": "US",
+      "postal_code": "10001"
+    }
+  }
+}
+```
+</Tab>
+</Tabs>
+
+After this call, retrieve available shipping options with `aa_get_checkout`, then call `aa_update_checkout` again with `selectedShippingOptionId`.
+
+### Step 4: Complete the purchase
+
+The checkout must be in `ready_for_complete` status. Mandate authorization runs here automatically.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_complete_checkout",
+  "params": {
+    "merchantDomain": "acmeshop.example.com",
+    "checkoutId": "co_01HXYZ789"
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "success": true,
+  "checkoutId": "co_01HXYZ789",
+  "status": "completed",
+  "orderId": "ord_01HXYZ999",
+  "orderNumber": "10042",
+  "totalAmount": {
+    "amount": "357.61",
+    "currency": "USD"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+<Callout type="warn">
+If no valid mandate exists, the response returns `status: "mandate_failed"`. See [Mandate tools](/docs/mcp/tools/mandate) to create one.
+</Callout>
+
+---
+
+## Cart (optional, before checkout)
+
+If you want to show the user a price estimate before committing, create a cart first. Check that `supportsCart: true` in the merchant response before calling these.
+
+- `aa_create_cart` — add items and get a subtotal with tax estimate
+- `aa_get_cart` — read current cart state
+- `aa_update_cart` — replace all items (full replacement, not append)
+- `aa_cancel_cart` — discard the cart
+
+Once ready, convert to a checkout by passing the `cartId` to `aa_create_checkout`.
