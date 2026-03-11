@@ -1,0 +1,80 @@
+---
+title: "API keys and spending limits"
+description: "Create an API key, understand what it can do, and know your rate limits."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Get your API key
+
+Go to [app.agentsauthority.com](https://app.agentsauthority.com) → **Settings → API Keys** → **Create Key**.
+
+Pass the key on every request:
+
+```http
+Authorization: Bearer aa_live_xxxxxxxxxxxx
+```
+
+Keys are prefixed by environment:
+- `aa_live_` — production, real transactions
+- `aa_test_` — sandbox mode, no real charges
+
+<Callout type="warn">
+Never log your full API key. If a key is compromised, revoke it immediately from the dashboard under Settings → API Keys.
+</Callout>
+
+## What your agent can do with each key type
+
+| What you want your agent to do | Key type needed |
+|---|---|
+| Browse products and search merchants | Any key (read access) |
+| Make purchases | Developer or Agent key |
+| Set spending policies and limits | Developer Pro or higher |
+| Create and sign mandates | Developer Pro or higher |
+| Manage other agents | Developer Pro or higher |
+| Full admin access | Developer Enterprise |
+
+Your key's capabilities are set by your account role and plan. If a tool call fails with a permissions error, your current plan does not include that capability.
+
+## Authentication errors
+
+| What you see | What it means |
+|---|---|
+| `401 Missing API key` | No `Authorization` header on the request |
+| `401 Invalid API key` | Key not recognized — check for typos or use the wrong environment prefix |
+| `403` on a specific tool | Your key does not have the scope for that tool |
+| `429` | Rate limit exceeded — wait for the window to reset |
+
+Example error response:
+
+```json
+{
+  "error": {
+    "code": -32001,
+    "message": "Missing API key. Pass via Authorization: Bearer <key>"
+  }
+}
+```
+
+## Rate limits
+
+| Plan | Requests per minute |
+|---|---|
+| Free | 60 |
+| Pro | 200 |
+| Enterprise | 1,000 |
+
+For most shopping tasks — finding a product, checking stock, completing one purchase — you will not come close to these limits. High-volume use cases (bulk catalog sync, many concurrent agents) should use Pro or Enterprise.
+
+When you exceed the limit, the response includes a `X-RateLimit-Reset` header with the Unix timestamp (milliseconds) when the window resets.
+
+## Tag requests with an agent ID
+
+If you're building a product with multiple AI agents, pass `X-Agent-Id` to track usage per agent:
+
+```http
+Authorization: Bearer aa_live_xxxxxxxxxxxx
+X-Agent-Id: agt_01HXYZ123
+```
+
+Usage is visible in the dashboard under **Usage**.

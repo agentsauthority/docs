@@ -1,0 +1,204 @@
+---
+title: "MCP Client Integrations"
+description: "Connect Agents Authority to Claude Desktop, Cursor, Claude Code, Windsurf, and more"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+Add your Agents Authority API key to any MCP-compatible client and your agent is ready to shop, manage wallets, and complete purchases.
+
+Get your API key at [app.agentsauthority.com](https://app.agentsauthority.com) → Settings → API Keys.
+
+---
+
+## Claude Desktop
+
+<Steps>
+  <Step>
+    ### Open config
+    Mac: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+    Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+  </Step>
+  <Step>
+    ### Add the server
+    ```json claude_desktop_config.json
+    {
+      "mcpServers": {
+        "agents-authority": {
+          "url": "https://mcp.agentsauthority.com/mcp",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step>
+    ### Restart Claude Desktop
+    Quit and reopen Claude Desktop. You'll see a hammer icon in the input bar when tools are available.
+  </Step>
+</Steps>
+
+<Callout>
+  Try asking: "Find me a standing desk under $400" to verify the connection.
+</Callout>
+
+---
+
+## Claude Code
+
+Add to your project's `.claude/settings.json` or run the command:
+
+```bash
+claude mcp add agents-authority \
+  --transport http \
+  --url https://mcp.agentsauthority.com/mcp \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+Or manually in `.claude/settings.json`:
+
+```json .claude/settings.json
+{
+  "mcpServers": {
+    "agents-authority": {
+      "type": "http",
+      "url": "https://mcp.agentsauthority.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Cursor
+
+<Steps>
+  <Step>
+    ### Open MCP settings
+    Cursor → Settings → MCP (or `Cmd+Shift+P` → "Open MCP Settings")
+  </Step>
+  <Step>
+    ### Add the server
+    ```json ~/.cursor/mcp.json
+    {
+      "mcpServers": {
+        "agents-authority": {
+          "url": "https://mcp.agentsauthority.com/mcp",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step>
+    ### Enable in Composer
+    Open Composer (Cmd+I), click the tools icon, and enable Agents Authority.
+  </Step>
+</Steps>
+
+---
+
+## Windsurf
+
+<Steps>
+  <Step>
+    ### Open MCP config
+    Windsurf → Preferences → MCP Servers → Add Server
+  </Step>
+  <Step>
+    ### Add the server
+    ```json ~/.windsurf/mcp_config.json
+    {
+      "mcpServers": {
+        "agents-authority": {
+          "url": "https://mcp.agentsauthority.com/mcp",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Zed
+
+Add to your Zed settings:
+
+```json ~/.config/zed/settings.json
+{
+  "context_servers": {
+    "agents-authority": {
+      "url": "https://mcp.agentsauthority.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Custom agent (any MCP client)
+
+If you're building your own agent, use the standard MCP HTTP transport:
+
+```
+Endpoint:  https://mcp.agentsauthority.com/mcp
+Transport: Streamable HTTP
+Auth:      Authorization: Bearer YOUR_API_KEY
+```
+
+<Tabs items={['Python (mcp SDK)', 'TypeScript (mcp SDK)']}>
+<Tab value="Python (mcp SDK)">
+```python
+import mcp
+
+client = mcp.Client(
+    url="https://mcp.agentsauthority.com/mcp",
+    headers={"Authorization": "Bearer YOUR_API_KEY"}
+)
+
+result = await client.call_tool("aa_discover_products", {
+    "query": "standing desk",
+    "maxPrice": 400
+})
+```
+</Tab>
+<Tab value="TypeScript (mcp SDK)">
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+const client = new Client({ name: "my-agent", version: "1.0.0" });
+
+await client.connect(new StreamableHTTPClientTransport(
+  new URL("https://mcp.agentsauthority.com/mcp"),
+  { headers: { Authorization: "Bearer YOUR_API_KEY" } }
+));
+
+const result = await client.callTool("aa_discover_products", {
+  query: "standing desk",
+  maxPrice: 400
+});
+```
+</Tab>
+</Tabs>
+
+<Callout>
+  Don't see your client? Any tool that supports the MCP Streamable HTTP transport works with the same endpoint and Bearer token. [Let us know](mailto:hello@agentsauthority.com) and we'll add a guide.
+</Callout>

@@ -1,0 +1,70 @@
+---
+title: "Your account and merchants"
+description: "Find stores your agent can shop at and retrieve your account profile."
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+**Required scope:** `user:read`
+
+---
+
+## Find merchants to shop from
+
+**When to use:** Your user wants to browse what stores are available, or find merchants that sell a specific type of product.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_discover_merchants",
+  "params": {
+    "query": "running shoes",
+    "limit": 5
+  }
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "merchants": [
+    { "merchantId": "mer_01HXYZ123", "productCount": 48 },
+    { "merchantId": "mer_01HABC456", "productCount": 12 }
+  ],
+  "totalProducts": 60
+}
+```
+</Tab>
+</Tabs>
+
+Once you have a `merchantId`, pass it to `aa_discover_products` to browse their catalog, or to `aa_discover_merchant` (in Commerce tools) for the full merchant profile including checkout capabilities.
+
+---
+
+## Get your account profile
+
+**When to use:** Verify the connection is working, or retrieve the user ID for agent or mandate operations.
+
+<Tabs items={['Request', 'Response']}>
+<Tab value="Request">
+```json
+{
+  "tool": "aa_get_user",
+  "params": {}
+}
+```
+</Tab>
+<Tab value="Response">
+```json
+{
+  "id": "usr_01HXYZ123",
+  "email": "alice@example.com",
+  "name": "Alice Smith",
+  "createdAt": "2025-01-15T10:00:00Z"
+}
+```
+</Tab>
+</Tabs>
+
+No parameters needed — user identity is resolved from your API key.
